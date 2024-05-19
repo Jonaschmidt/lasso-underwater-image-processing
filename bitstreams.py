@@ -1,28 +1,28 @@
 # TODO: docstrings
-# TODO: support for binary and polar Hypervectors?
+# TODO: support for binary and polar bitstreams?
 
 import tensorflow as tf
 from typing import Optional, Tuple
 
-class Hypervector:
+class Bitstream:
     '''
-    A class to represent a Hypervector.
+    A class to represent a bitstream.
 
     Attributes:
-        size (int): The size of the Hypervector
-        value (int): The value represented by the Hypervector
-        value_range (Tuple[int, int]): Default (0, size), is used when generating the tensor and is most useful when the Hypervector can represent negative numbers
-        tensor (tensorflow.python.framework.ops.EagerTensor): The actual Hypervector, represented as a tensor
+        size (int): The size of the bitstream
+        value (int): The value represented by the bitstream
+        value_range (Tuple[int, int]): Default (0, size), is used when generating the tensor and is most useful when the bitstream can represent negative numbers
+        tensor (tensorflow.python.framework.ops.EagerTensor): The actual bitstream, represented as a tensor
     '''
 
-    def __init__(self, size: int, value: Optional[int] = None, value_range: Optional[Tuple[int, int]] = None):
+    def __init__(self, size: int, value: int, value_range: Optional[Tuple[int, int]] = None):
         '''
-        Initializes a Hypervector with the given size, value, and value range.
+        Initializes a bitstream with the given size, value, and value range.
 
         Args:
-            size (int): The size of the Hypervector, must be positive.
-            value (Optional[int]): The value represented by the Hypervector. Default is None, which sets the value to half the size.
-            value_range (Optional[Tuple[int, int]]): The range of possible values the Hypervector can represent. Default is None, which sets the range to (0, size).
+            size (int): The size of the bitstream, must be positive.
+            value (Optional[int]): The value represented by the bitstream. Default is None, which sets the value to half the size.
+            value_range (Optional[Tuple[int, int]]): The range of possible values the bitstream can represent. Default is None, which sets the range to (0, size).
         '''
         if size <= 0:
             raise ValueError("Size must be a positive integer.")
@@ -33,17 +33,14 @@ class Hypervector:
 
     def _generate_tensor(self, value_range: Optional[Tuple[int, int]] = None) -> tf.Tensor:
         '''
-        Generates the tensor representation of the Hypervector.
+        Generates the tensor representation of the bitstream.
 
         Args:
-            value_range (Optional[Tuple[int, int]]): The range of possible values the Hypervector can represent. Default is None, which sets the range to (0, size).
+            value_range (Optional[Tuple[int, int]]): The range of possible values the bitstream can represent. Default is None, which sets the range to (0, size).
 
         Returns:
-            tf.Tensor: The generated tensor representing the Hypervector.
+            tf.Tensor: The generated tensor representing the bitstream.
         '''
-        if value is None:
-            value = self.size / 2
-
         if value_range is None:
             value_range = (0, self.size)
 
@@ -73,13 +70,13 @@ class Hypervector:
 
     # returns [-1, 1], with 0 denoting complete orthogonality
     @staticmethod
-    def cos_similarity(hv1, hv2) -> float:
+    def cos_similarity(bs1, bs2) -> float:
         '''
-        Computes the cosine similarity between two Hypervectors.
+        Computes the cosine similarity between two bitstreams.
 
         Args:
-            hv1 (Hypervector): The first Hypervector.
-            hv2 (Hypervector): The second Hypervector.
+            bs1 (Bitstream): The first bitstream.
+            bs2 (Bitstream): The second bitstream.
 
         Returns:
             float: The cosine similarity between hv1 and hv2, ranging from -1 to 1, where 0 denotes complete orthogonality.
