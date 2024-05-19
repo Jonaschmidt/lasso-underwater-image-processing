@@ -79,6 +79,6 @@ class Bitstream:
             bs2 (Bitstream): The second bitstream.
 
         Returns:
-            float: The cosine similarity between hv1 and hv2, ranging from -1 to 1, where 0 denotes complete orthogonality.
+            float: The cosine similarity between bs1 and bs2, ranging from -1 to 1, where 0 denotes complete orthogonality.
         '''
-        return (tf.keras.losses.cosine_similarity(tf.cast(hv1.tensor, dtype=tf.float32), tf.cast(hv2.tensor, dtype=tf.float32))).numpy()    
+        return (tf.keras.losses.cosine_similarity(tf.cast(bs1.tensor, dtype=tf.float32), tf.cast(bs2.tensor, dtype=tf.float32))).numpy()    
