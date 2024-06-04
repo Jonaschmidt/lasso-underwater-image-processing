@@ -1,11 +1,7 @@
-import tensorflow as tf
+import numpy as np
 
-from hypervectors import Hypervector
+from graphics import Graphic
 
-hv_0 = Hypervector(size=256)
+g = Graphic(file_path="test_graphics/10008.png")
 
-hv_1 = Hypervector(size=256, value=256)
-
-hv_r1 = Hypervector(size=256, value=128)
-hv_r2 = Hypervector(size=256, value=128)
-
+print(g.bs_array.shape)
