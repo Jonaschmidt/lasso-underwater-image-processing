@@ -2,6 +2,7 @@
 # TODO: support for binary and polar bitstreams?
 
 import tensorflow as tf
+import numpy as np
 from typing import Optional, Tuple
 
 class Bitstream:
@@ -11,38 +12,48 @@ class Bitstream:
     Attributes:
         size (int): The size of the bitstream
         value (int): The value represented by the bitstream
-        value_range (Tuple[int, int]): Default (0, size), is used when generating the tensor and is most useful when the bitstream can represent negative numbers
         tensor (tensorflow.python.framework.ops.EagerTensor): The actual bitstream, represented as a tensor
     '''
 
-    def __init__(self, size: int, value: int, value_range: Optional[Tuple[int, int]] = None):
+    def __init__(self, size: Optional[int]=256, value: Optional[int]=None, tensor:Optional[tf.Tensor]=None):
         '''
         Initializes a bitstream with the given size, value, and value range.
 
         Args:
-            size (int): The size of the bitstream, must be positive.
-            value (Optional[int]): The value represented by the bitstream. Default is None, which sets the value to half the size.
-            value_range (Optional[Tuple[int, int]]): The range of possible values the bitstream can represent. Default is None, which sets the range to (0, size).
+            size (int): The size of the bitstream, must be positive. Will be ignored if tensor is passed instead of value. Default is 256 if value is passed.
+            value (Optional[int]): The value represented by the bitstream. Default is None, which will generate value based on given tensor attribute. Only one of tensor and value must be provided.
+                *It is generally recommended to pass value and size intstead of tensor*
+            tensor (Optional[tf.Tensor]): A Tensor representing the actual bitstream. Default is None, which will generate tensor based on given value. Only one of tensor and value must be provided.
         '''
+
         if size <= 0:
             raise ValueError("Size must be a positive integer.")
-
+        
         self.size = size
-        self.value = value
-        self.tensor = self._generate_tensor(value_range)
 
-    def _generate_tensor(self, value_range: Optional[Tuple[int, int]] = None) -> tf.Tensor:
+        if value == None and tensor == None:
+            value = 0
+
+        if value != None and tensor != None:
+            raise ValueError("Exactly one or none of 'tensor' or 'value' must be provided.")
+        
+        if value != None:
+            self.value = value
+            self.tensor = self._generate_tensor()
+        else:
+            self.tensor = tensor
+            self.value = self._generate_value()
+            self.size = self.tensor.shape[0]
+
+
+    def _generate_tensor(self) -> tf.Tensor:
         '''
         Generates the tensor representation of the bitstream.
-
-        Args:
-            value_range (Optional[Tuple[int, int]]): The range of possible values the bitstream can represent. Default is None, which sets the range to (0, size).
 
         Returns:
             tf.Tensor: The generated tensor representing the bitstream.
         '''
-        if value_range is None:
-            value_range = (0, self.size)
+        value_range = (0, self.size)
 
         min_value, max_value = value_range
         max_value += 1
@@ -53,6 +64,15 @@ class Bitstream:
         updates = tf.ones(num_ones, dtype=tf.int32)
 
         return tf.tensor_scatter_nd_update(corr_vec, tf.expand_dims(indices, 1), updates)
+
+    def _generate_value(self) -> int:
+        '''
+        Generates the value of the a passed bitstream (Tensor).
+
+        Returns:
+            int: The generated value based on the number of 1's in the Tensor passed.
+        '''
+        return tf.reduce_sum(tf.cast(tf.equal(self.tensor, 1), tf.int32)).numpy()
 
     # TODO: def regen_tensor()
 
@@ -82,3 +102,4 @@ class Bitstream:
             float: The cosine similarity between bs1 and bs2, ranging from -1 to 1, where 0 denotes complete orthogonality.
         '''
         return (tf.keras.losses.cosine_similarity(tf.cast(bs1.tensor, dtype=tf.float32), tf.cast(bs2.tensor, dtype=tf.float32))).numpy()    
+
