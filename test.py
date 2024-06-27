@@ -1,48 +1,20 @@
-import numpy as np
 import tensorflow as tf
-from PIL import Image
 
-from graphics import Graphic
-from bitstreams import Bitstream
+from hypervectors import Hypervector
 
-g = Graphic("./test_graphics/10008.png")
+tensor1 = tf.constant([1.0, 1.0, 1.0])
+tensor2 = tf.constant([1.0, 1.0, 1.0])
 
-print(g.bs_array)
+dot_product = tf.reduce_sum(tensor1 * tensor2)
 
+norm_tensor1 = tf.norm(tensor1)
+norm_tensor2 = tf.norm(tensor2)
 
-tensor_list = []
+cos_sim = dot_product / (norm_tensor1 * norm_tensor2)
 
-width, height = g.bs_array.shape
-for w in range(width):
-    for h in range(height):
-        tensor_list.append(g.bs_array[w, h].tensor)
+print("Cosine Similarity:", cos_sim.numpy())
 
-depth = tensor_list[0].shape
-tensor = tf.stack(tensor_list)
-tensor = tf.reshape(tensor, (width, height, *depth))
+foo = Hypervector(tensor=tensor1)
+bar = Hypervector(tensor=tensor2)
 
-print()
-print(tensor[0, 0, :].shape)
-
-print()
-print(tensor[0, 0, :] == g.bs_array[0, 0].tensor)
-
-'''
-values = np.array([[obj.value for obj in row] for row in g.bs_array], dtype=np.uint8)
-image = Image.fromarray(values, mode='L')
-
-image.show(title="unconvoluted")
-'''
-
-g.show()
-g.convolute_bs_array()
-g.show()
-g.convolute_bs_array()
-g.show()
-g.convolute_bs_array()
-g.show()
-g.convolute_bs_array()
-g.show()
-g.convolute_bs_array()
-g.show()
-
+print(Hypervector.cos_similarity(foo, bar))

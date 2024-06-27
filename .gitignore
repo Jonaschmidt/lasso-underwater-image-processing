@@ -1,3 +1,7 @@
+mnist_train/
+mnist_test/
+mnist_classification_test.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

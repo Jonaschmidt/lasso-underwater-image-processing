@@ -5,7 +5,9 @@ import tensorflow as tf
 import numpy as np
 from typing import Optional, Tuple
 
+# TODO: docstrings
 class Bitstream:
+    # TODO: update these docstrings
     '''
     A class to represent a bitstream.
 
@@ -35,7 +37,7 @@ class Bitstream:
             value = 0
 
         if value != None and tensor != None:
-            raise ValueError("Exactly one or none of 'tensor' or 'value' must be provided.")
+            raise ValueError("At least one or none of 'tensor' or 'value' must be provided.")
         
         if value != None:
             self.value = value
