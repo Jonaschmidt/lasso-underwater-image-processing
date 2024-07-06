@@ -2,7 +2,7 @@
 
 from PIL import Image
 from alive_progress import alive_bar # type: ignore
-from typing import Optional
+from typing import Optional, Tuple
 import numpy as np
 import tensorflow as tf
 
@@ -23,21 +23,36 @@ P_HVs = {'max_width':0, 'max_height':0}
 L_HVs = {}
 
 class Graphic:
-    def __init__(self, file_path: str, label: Optional[str]=None, description: Optional[str]=None, hv_size: Optional[int]=256, bar_show=False):
+    def __init__(self, file_path: str, 
+                 label: Optional[str]=None, 
+                 description: Optional[str]=None, 
+                 hv_size: Optional[int]=256, 
+                 bar_show=True, 
+                 resize_dims: Optional[Tuple[int, int]]=None):
+        
         self.file_path = file_path
         try:
-            self.image = Image.open(file_path)  # load the image using PIL
+            self.image = Image.open(file_path).convert("L") # load the image using PIL
         except (IOError, OSError) as e:
             raise FileNotFoundError(f"Error opening image at {file_path}: {e}")
         
+        if not resize_dims == None:
+            self.image = self.image.resize(resize_dims)
+
         if hv_size < 256:
             raise ValueError("At least one or none of 'tensor' or 'value' must be provided.")
         
         self.hv_size = hv_size
 
+        self.bar_show = bar_show
+
+        if bar_show:
+            print("expanding P_HVs...")
         self._expand_P_HVs()
 
         if len(L_HVs) == 0:
+            if bar_show:
+                print("generating L_HVs...")
             self._gen_L_HVs()
         
         self.label = label
@@ -49,7 +64,6 @@ class Graphic:
 
         self.bs_array = self._gen_bs_array()
 
-        self.bar_show = bar_show
         self.hv = self._gen_hypervector()
 
     def _expand_P_HVs(self):
@@ -96,7 +110,7 @@ class Graphic:
     def _gen_hypervector(self):
         width, height = self.image.size
 
-        PL = [[None for _ in range(width)] for _ in range(height)]
+        PL = [[None for _ in range(height)] for _ in range(width)]
 
         if self.bar_show:
             with alive_bar(width * height + len(PL) - 1) as bar:

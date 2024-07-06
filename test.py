@@ -1,20 +1,29 @@
-import tensorflow as tf
-
+from graphics import Graphic
 from hypervectors import Hypervector
+from bitstreams import Bitstream
 
-tensor1 = tf.constant([1.0, 1.0, 1.0])
-tensor2 = tf.constant([1.0, 1.0, 1.0])
+import tensorflow as tf
+import os
+import glob
+import random
+import pickle
+from alive_progress import alive_bar # type: ignore
 
-dot_product = tf.reduce_sum(tensor1 * tensor2)
+NUM_CLASSES = 2
+HV_LENGTH = 10_000
+SPLIT = 0.80
+class_hvs = []
 
-norm_tensor1 = tf.norm(tensor1)
-norm_tensor2 = tf.norm(tensor2)
+class_0 = files = glob.glob(os.path.join("./LSUI_Graphics/input", '*'))
+class_1 = files = glob.glob(os.path.join("./LSUI_Graphics/GT", '*'))
 
-cos_sim = dot_product / (norm_tensor1 * norm_tensor2)
+train_cases_class_0 = class_0[:int(len(class_0) * SPLIT)]
+train_cases_class_1 = class_1[:int(len(class_1) * SPLIT)]
 
-print("Cosine Similarity:", cos_sim.numpy())
+test_cases_class_0 = class_0[-1 * int(len(class_0) * (1 - SPLIT)):]
+test_cases_class_1 = class_1[-1 * int(len(class_1) * (1 - SPLIT)):]
 
-foo = Hypervector(tensor=tensor1)
-bar = Hypervector(tensor=tensor2)
+test_cases = test_cases_class_0 + test_cases_class_1
+random.shuffle(test_cases)
 
-print(Hypervector.cos_similarity(foo, bar))
+print(test_cases)

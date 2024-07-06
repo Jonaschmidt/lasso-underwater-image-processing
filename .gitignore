@@ -1,6 +1,9 @@
 mnist_train/
 mnist_test/
 mnist_classification_test.py
+tf_test.py
+
+Dockerfile
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -128,6 +131,7 @@ celerybeat.pid
 .venv
 env/
 venv/
+new_venv/
 ENV/
 env.bak/
 venv.bak/
